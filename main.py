@@ -8,13 +8,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Add CORSMiddleware to allow requests from any origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows requests from any domain
-    allow_credentials=True,  # Allows sending cookies and authentication headers
-    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -26,12 +25,13 @@ predict_consumption = [0.47, 0.46, 0.43, 0.43, 0.48, 0.51, 0.46, 0.43, 0.55, 0.4
 predict_price = [5.93, 6.89, 7.06, 8.22, 9.87, 8.5, 6.52, 7.8, 5.0, 6.78, 5.61,
                  6.28, 4.78, 7.21, 4.5, 6.07, 7.32, 5.08, 8.41, 6.65, 8.64, 4.54, 6.59, 5.15]
 
-actual_solar_power = [x + random.randint(-20, 20) for x in predict_solar_power]
+actual_solar_power = [
+    x + random.randint(-100, 100) for x in predict_solar_power]
 
 actual_consumption = [round(x + random.uniform(-0.1, 0.1), 2)
                       for x in predict_consumption]
 
-actual_price = [round(x + random.uniform(-0.5, 0.5), 2) for x in predict_price]
+actual_price = [round(x + random.uniform(-1, 1), 2) for x in predict_price]
 
 saving = [round((actual_solar_power[i]*0.01 - actual_consumption[i])
                 * actual_price[i], 2) for i in range(len(predict_solar_power))]
@@ -45,7 +45,18 @@ notification = [{
     'id': 1,
     'message': 'Tomorrow, Can you use less electricity between 10:00 AM to 10:00 PM?',
     'viewed': False,
-},]
+    'time': '2021-10-25 1:00 PM',
+}, {
+    'id': 2,
+    'message': 'You have saved $10.00 today!',
+    'viewed': False,
+    'time': '2021-10-25 10:00 AM',
+}, {
+    'id': 3,
+    'message': 'You can use high electricity device today!',
+    'viewed': True,
+    'time': '2021-10-24 10:00 AM',
+}]
 
 
 def hourly_prediction():
@@ -103,10 +114,10 @@ def read_root():
 
     return res
 
+
 @app.post("/update")
 def update(notification_id: int):
     for i in notification:
         if i['id'] == notification_id:
             i['viewed'] = True
     return notification
-    
