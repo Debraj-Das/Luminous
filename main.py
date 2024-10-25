@@ -91,3 +91,11 @@ def read_root():
     res['notification'] = notification
 
     return res
+
+@app.post("/update")
+def update(notification_id: int):
+    for i in notification:
+        if i['id'] == notification_id:
+            i['viewed'] = True
+    return notification
+    
