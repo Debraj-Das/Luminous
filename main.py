@@ -32,7 +32,7 @@ for i in range(len(saving)//2):
 
 notification = [{
     'id': 1,
-    'message': 'You have saved $100 today',
+    'message': 'Tomorrow, Can you use less electricity between 10:00 AM to 10:00 PM?',
     'viewed': False,
 },]
 
