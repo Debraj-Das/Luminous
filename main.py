@@ -3,8 +3,19 @@ import schedule
 from datetime import datetime, timedelta
 import random
 from predictions.prediction import predict_new_data
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+# Add CORSMiddleware to allow requests from any origin
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows requests from any domain
+    allow_credentials=True,  # Allows sending cookies and authentication headers
+    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 
 
 predict_solar_power = [900, 1326, 1138, 973, 1563, 1163, 1562, 1528, 1443, 881,
