@@ -22,19 +22,14 @@ predict_solar_power = []
 predict_consumption = []
 predict_price = []
 
-actual_solar_power = [
-    x + random.randint(-100, 100) for x in predict_solar_power]
-
-actual_consumption = [round(x + random.uniform(-0.1, 0.1), 2)
-                      for x in predict_consumption]
-
-actual_price = [round(x + random.uniform(-1, 1), 2) for x in predict_price]
-
-saving = [round((actual_solar_power[i]*0.01 - actual_consumption[i])
-                * actual_price[i], 2) for i in range(len(predict_solar_power))]
-
+actual_solar_power = []
+actual_consumption = []
+actual_price = []
+saving = []
 
 total_saving = 0
+
+
 for i in range(len(saving)//2):
     total_saving += saving[i]
 
@@ -122,7 +117,6 @@ for i in range(-11, 13):
 
     saving.append(
         round((_actual_solar_power*0.01 - _actual_consumption)*_actual_price, 2))
-    saving.pop(0)
 
     total_saving += round((_actual_solar_power*0.01 -
                            _actual_consumption)*_actual_price, 2)
