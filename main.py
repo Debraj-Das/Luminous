@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import random
 from predictions.prediction import predict_new_data
 from fastapi.middleware.cors import CORSMiddleware
-
+import pytz
 
 app = FastAPI()
 
@@ -16,6 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+ist = pytz.timezone('Asia/Kolkata')
 
 predict_solar_power = []
 predict_consumption = []
@@ -37,8 +38,8 @@ total_saving = 0
 for i in range(len(saving)//2):
     total_saving += saving[i]
 
-current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-previous_time = (datetime.now() - timedelta(hours=20)
+current_time = datetime.now(ist).strftime('%Y-%m-%d %H:%M:%S')
+previous_time = (datetime.now(ist) - timedelta(hours=20)
                  ).strftime('%Y-%m-%d %H:%M:%S')
 
 notification = [{
@@ -60,7 +61,7 @@ notification = [{
 
 
 def hourly_prediction():
-    current_time = (datetime.now() + timedelta(hours=12)
+    current_time = (datetime.now(ist) + timedelta(hours=12)
                     ).strftime('%Y-%m-%d %H:%M')
     predicted_values = predict_new_data(current_time)
 
@@ -98,7 +99,7 @@ def hourly_prediction():
 # intialize the data
 
 for i in range(-11, 13):
-    t = (datetime.now() + timedelta(hours=i)).strftime('%Y-%m-%d %H:%M')
+    t = (datetime.now(ist) + timedelta(hours=i)).strftime('%Y-%m-%d %H:%M')
     predicted_values = predict_new_data(t)
 
     _predict_solar_power = float(round(predicted_values[0][0], 2))
