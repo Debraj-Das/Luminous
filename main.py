@@ -17,13 +17,9 @@ app.add_middleware(
 )
 
 
-predict_solar_power = [900, 1326, 1138, 973, 1563, 1163, 1562, 1528, 1443, 881,
-                       1147, 1012, 1609, 852, 649, 644, 656, 667, 805, 769, 941, 1038, 927, 742]
-
-predict_consumption = [0.47, 0.46, 0.43, 0.43, 0.48, 0.51, 0.46, 0.43, 0.55, 0.44,
-                       0.46, 0.48, 0.47, 0.46, 0.46, 0.48, 0.43, 0.45, 0.48, 0.48, 0.5, 0.5, 0.41, 0.42]
-predict_price = [5.93, 6.89, 7.06, 8.22, 9.87, 8.5, 6.52, 7.8, 5.0, 6.78, 5.61,
-                 6.28, 4.78, 7.21, 4.5, 6.07, 7.32, 5.08, 8.41, 6.65, 8.64, 4.54, 6.59, 5.15]
+predict_solar_power = []
+predict_consumption = []
+predict_price = []
 
 actual_solar_power = [
     x + random.randint(-100, 100) for x in predict_solar_power]
@@ -41,21 +37,25 @@ total_saving = 0
 for i in range(len(saving)//2):
     total_saving += saving[i]
 
+current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+previous_time = (datetime.now() - timedelta(hours=20)
+                 ).strftime('%Y-%m-%d %H:%M:%S')
+
 notification = [{
     'id': 1,
     'message': 'Tomorrow, Can you use less electricity between 10:00 AM to 10:00 PM?',
     'viewed': False,
-    'time': '2021-10-25 1:00 PM',
+    'time': f'{current_time}',
 }, {
     'id': 2,
     'message': 'You have saved $10.00 today!',
     'viewed': False,
-    'time': '2021-10-25 10:00 AM',
+    'time': f'{current_time}',
 }, {
     'id': 3,
     'message': 'You can use high electricity device today!',
     'viewed': True,
-    'time': '2021-10-24 10:00 AM',
+    'time': f'{previous_time}',
 }]
 
 
@@ -70,7 +70,7 @@ def hourly_prediction():
 
     _actual_solar_power = _predict_solar_power + random.randint(-20, 20)
     _actual_consumption = _predict_consumption + random.uniform(-0.1, 0.1)
-    _actual_price = _predict_price + random.uniform(-0.5, 0.5)
+    _actual_price = _predict_price + random.uniform(-1, 1)
 
     predict_solar_power.append(_predict_solar_power)
     predict_solar_power.pop(0)
@@ -95,8 +95,39 @@ def hourly_prediction():
                            actual_consumption[11])*actual_price[11], 2)
 
 
-if __name__ == "__main__":
-    schedule.every().hour.at(":00").do(hourly_prediction)
+# intialize the data
+
+for i in range(-11, 13):
+    t = (datetime.now() + timedelta(hours=i)).strftime('%Y-%m-%d %H:%M')
+    predicted_values = predict_new_data(t)
+
+    _predict_solar_power = float(round(predicted_values[0][0], 2))
+    _predict_consumption = float(round(predicted_values[0][1], 2))
+    _predict_price = float(round(predicted_values[0][2], 2))
+
+    _actual_solar_power = round(
+        _predict_solar_power + random.randint(-20, 20), 2)
+    _actual_consumption = round(
+        _predict_consumption + random.uniform(-0.1, 0.1), 2)
+    _actual_price = round(_predict_price + random.uniform(-1, 1), 2)
+
+    predict_solar_power.append(_predict_solar_power)
+    predict_consumption.append(_predict_consumption)
+    predict_price.append(_predict_price)
+
+    actual_solar_power.append(_actual_solar_power)
+    actual_consumption.append(_actual_consumption)
+    actual_price.append(_actual_price)
+
+    saving.append(
+        round((_actual_solar_power*0.01 - _actual_consumption)*_actual_price, 2))
+    saving.pop(0)
+
+    total_saving += round((_actual_solar_power*0.01 -
+                           _actual_consumption)*_actual_price, 2)
+
+
+schedule.every().hour.at(":00").do(hourly_prediction)
 
 
 @app.get("/")
